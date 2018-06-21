@@ -144,7 +144,7 @@ public static int thesi = 1;
 		Path tempDir9 = new Path("/home/mofista/Desktop/Results-Filippos/Test9");
 		Path tempDir10 = new Path("/home/mofista/Desktop/Results-Filippos/Test10");
 		
-		Path stats = new Path("/home/mofista/Desktop/Results-Filippos/CountTimesSlate");
+		Path stats = new Path("/media/mofista/OS/Users/ΦΙΛΙΠΠΟΣ/Desktop/Results-Filippos/CountTimesSlate");
 
 		Job job1 = new Job(conf, "DayCounter");
 		job1.setJarByClass(FinalForm1.class);
@@ -156,7 +156,7 @@ public static int thesi = 1;
 		job1.setOutputValueClass(Text.class);
 		
 		FileInputFormat.addInputPath(job1, stats);
-		 FileInputFormat.addInputPath(job1, new Path ("/home/mofista/Desktop/Results-Filippos/ToBinaryOutput"));
+		 FileInputFormat.addInputPath(job1, new Path ("/media/mofista/OS/Users/ΦΙΛΙΠΠΟΣ/Desktop/Results-Filippos/ToBinaryOutput"));
 	//	FileInputFormat.addInputPath(job1, new Path ("ToBinaryOutput"));
 
 		

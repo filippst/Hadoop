@@ -1,13 +1,10 @@
-
-//input from NewForm
+//input URLtoDomain kai to input ????
 
 package com.mycompany.app;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-
-import java.text.DecimalFormat;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -19,7 +16,7 @@ import org.apache.hadoop.util.GenericOptionsParser;
 
 import java.util.regex.*;
 
-public class MachineLearningForm {
+public class AddWords {
 
 	public static class TokenizerMapper 
     	extends Mapper<Object, Text, Text, Text>{
@@ -31,39 +28,19 @@ public class MachineLearningForm {
                  ) throws IOException, InterruptedException {
 			StringTokenizer itr = new StringTokenizer(value.toString(),"\n");
 			
-			//String[] help = new String[];
-			String[] temp;
- 			String ola="";
-			int i,j;
-			int s=1;
+			String[] temp;	
+			
 			while (itr.hasMoreTokens()) {
 				
-		    	temp = (itr.nextToken()).split("\\s+");
+		    			temp = (itr.nextToken()).split("\\s+");	
+		    			context.write(new Text(temp[0]+"-"+temp[1]),new Text("1"));
 
-		    	// for (i=1;i<=10;i++){
-		    	// 	ola +=temp[i]+" ";
-		    	// }
-		    	ola+=temp[1]+" ";
-		    	for (i=11;i<=20;i++){
-		    		String[] help = (temp[i]).split(",");
-		    		for(j=0;j<3;j++){
-		    			ola+=Integer.toString(s)+":"+help[j]+" ";
-		    			s++;
-		    		}
-		    		
-		    	}
-
-		    	context.write(new Text(temp[0]),new Text(ola));
-
-		    	
-		    	
-		    	
-		    	
-		    	
+		    			    
 		    
-		    }
 		}
 	}
+}
+
 
 	public static class IntSumReducer 
 	    extends Reducer<Text,Text,Text,Text> {
@@ -73,19 +50,22 @@ public class MachineLearningForm {
 		            Context context
                     ) throws IOException, InterruptedException {
 			
+			int s=0;
+				
 			for (Text val : values) {
 				
-				context.write(val,new Text(""));	
+				s++;
+			}
+
+				
+			context.write(key,new Text(Integer.toString(s)));
+				
+
+						
+						
 
 		}
-			
-
-			
-
-			//context.write(values,new Text(""));	
-		
-			}	
-		}
+	}	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
@@ -96,7 +76,7 @@ public class MachineLearningForm {
 		}
 		    
 		Job job = new Job(conf, "DayCounter");
-		job.setJarByClass(MachineLearningForm.class);
+		job.setJarByClass(AddWords.class);
 		job.setJobName("DayCounter");
 		    
 		job.setMapperClass(TokenizerMapper.class);

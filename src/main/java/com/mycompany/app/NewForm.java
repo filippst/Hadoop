@@ -101,9 +101,7 @@ public class NewForm {
 				for (i=10;i<(last.length);i++){
 				
 					for (j=0;j<10;j++){
-						if(key.toString().equals("156-2")){
-				System.out.println("I ama compare "+last[i]+" and "+last[j]+"with max = "+max);
-			}
+						
 					
 					
 						if (last[j].equals(last[i])){

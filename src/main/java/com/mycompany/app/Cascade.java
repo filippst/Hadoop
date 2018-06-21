@@ -58,15 +58,20 @@ public class Cascade {
 			String[] help = (val.toString()).split("\\s+");
 			String[] stats;
 			double no=1.0;
-			for (int i=10;i<help.length;i++){
+			String outp="";
+			int i;
+			for (i=1;i<11;i++){
+				outp+=help[i]+"\t";
+			}
+			for ( i=11;i<help.length;i++){
 				stats = help[i].toString().split(",");
-				prob = (Double.parseDouble(stats[0]))*no;
+				prob = (Double.parseDouble(stats[1]))*no;
 				sum+=String.valueOf(prob)+"\t";
-				no=no*(Double.parseDouble(stats[1]));
-				System.out.println(prob+" kai "+no);
+				no=no*(Double.parseDouble(stats[2]));
+				
 			}
 
-			context.write(new Text(""), new Text(sum));
+			context.write(key, new Text(outp+sum));
 			}
 			
 		}

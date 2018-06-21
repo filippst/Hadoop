@@ -1,13 +1,10 @@
-
-//input from NewForm
+//input to arxiko
 
 package com.mycompany.app;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-
-import java.text.DecimalFormat;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -19,7 +16,7 @@ import org.apache.hadoop.util.GenericOptionsParser;
 
 import java.util.regex.*;
 
-public class MachineLearningForm {
+public class OnlyClicks {
 
 	public static class TokenizerMapper 
     	extends Mapper<Object, Text, Text, Text>{
@@ -30,38 +27,24 @@ public class MachineLearningForm {
 		public void map(Object key, Text value, Context context
                  ) throws IOException, InterruptedException {
 			StringTokenizer itr = new StringTokenizer(value.toString(),"\n");
-			
-			//String[] help = new String[];
+			boolean flag=false;
 			String[] temp;
- 			String ola="";
-			int i,j;
-			int s=1;
+			int i;
 			while (itr.hasMoreTokens()) {
-				
-		    	temp = (itr.nextToken()).split("\\s+");
-
-		    	// for (i=1;i<=10;i++){
-		    	// 	ola +=temp[i]+" ";
-		    	// }
-		    	ola+=temp[1]+" ";
-		    	for (i=11;i<=20;i++){
-		    		String[] help = (temp[i]).split(",");
-		    		for(j=0;j<3;j++){
-		    			ola+=Integer.toString(s)+":"+help[j]+" ";
-		    			s++;
+				flag=false;
+		    	temp = (itr.nextToken()).split("\t");
+		    	for (i=1;i<11;i++){
+		    		if (temp[i].equals("1")){
+		    			flag = true;
+		    			break;
 		    		}
-		    		
+
 		    	}
-
-		    	context.write(new Text(temp[0]),new Text(ola));
-
-		    	
-		    	
-		    	
-		    	
-		    	
+		    	if (flag==true){
+		    		context.write(new Text(temp[0]),value);
+		    	}
+		    	}
 		    
-		    }
 		}
 	}
 
@@ -69,23 +52,17 @@ public class MachineLearningForm {
 	    extends Reducer<Text,Text,Text,Text> {
 		private IntWritable result = new IntWritable();
 	
-		public void reduce(Text key, Iterable<Text> values,
-		            Context context
+		//public void reduce(Text key, Iterable<IntWritable> values,
+		public void reduce(Text key, Iterable<Text> values, 
+                    Context context
                     ) throws IOException, InterruptedException {
-			
-			for (Text val : values) {
-				
-				context.write(val,new Text(""));	
 
+			for( Text vals : values){
+
+			context.write(vals,new Text(""));
+			}
 		}
-			
-
-			
-
-			//context.write(values,new Text(""));	
-		
-			}	
-		}
+	}	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
@@ -96,7 +73,7 @@ public class MachineLearningForm {
 		}
 		    
 		Job job = new Job(conf, "DayCounter");
-		job.setJarByClass(MachineLearningForm.class);
+		job.setJarByClass(OnlyClicks.class);
 		job.setJobName("DayCounter");
 		    
 		job.setMapperClass(TokenizerMapper.class);

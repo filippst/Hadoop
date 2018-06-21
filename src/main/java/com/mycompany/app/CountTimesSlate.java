@@ -97,7 +97,7 @@ public class CountTimesSlate {
 		            Context context
                     ) throws IOException, InterruptedException {
 			int pro=0,sun=0,click=0,contin=0; //sun counts the total number of times provlithike and pro only the times it was seen according to the cascade
-			int thres=1;
+			int thres=20;
 			Text two = new Text("1");
 
 
@@ -128,11 +128,11 @@ public class CountTimesSlate {
 			
 			
 			
-			if (sun>thres && pro>1){
+			if (sun>thres && pro>20){
 		    context.write(key, new Text (String.valueOf(sun)+"\t"+String.valueOf(pro)+"\t"+String.valueOf(contin)+"\t"+String.valueOf(click)+"\t"+String.valueOf(df.format(click*1.0/sun))+"\t"+String.valueOf(df.format(click*1.0/pro))+"\t"+String.valueOf(df.format(contin*1.0/pro))));				
 			}
 			else{
-				context.write(key, new Text (String.valueOf(sun)+"\t"+String.valueOf(pro)+"\t"+String.valueOf(contin)+"\t"+String.valueOf(click)+"\t"+String.valueOf(0.0)+"\t"+String.valueOf(0.0)+"\t"+String.valueOf(0.0)));				
+				context.write(key, new Text (String.valueOf(sun)+"\t"+String.valueOf(pro)+"\t"+String.valueOf(contin)+"\t"+String.valueOf(click)+"\t"+String.valueOf(0.0)+"\t"+String.valueOf(0.0)+"\t"+String.valueOf(1.0)));				
 			
 			}
 

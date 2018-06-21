@@ -1,13 +1,12 @@
-
-//input from NewForm
+//2 inputs from ToBinaryOutput and AllStats
+//tautoxrona tha petaksw ta clicks afou den ta thelw pia
 
 package com.mycompany.app;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
+import java.util.*;
 
-
-import java.text.DecimalFormat;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -19,7 +18,8 @@ import org.apache.hadoop.util.GenericOptionsParser;
 
 import java.util.regex.*;
 
-public class MachineLearningForm {
+public class PosDependent {
+
 
 	public static class TokenizerMapper 
     	extends Mapper<Object, Text, Text, Text>{
@@ -31,39 +31,27 @@ public class MachineLearningForm {
                  ) throws IOException, InterruptedException {
 			StringTokenizer itr = new StringTokenizer(value.toString(),"\n");
 			
-			//String[] help = new String[];
-			String[] temp;
- 			String ola="";
-			int i,j;
-			int s=1;
+			String[] temp,help;
+			int pos=0;
+			int i;
+			
 			while (itr.hasMoreTokens()) {
 				
 		    	temp = (itr.nextToken()).split("\\s+");
-
-		    	// for (i=1;i<=10;i++){
-		    	// 	ola +=temp[i]+" ";
-		    	// }
-		    	ola+=temp[1]+" ";
-		    	for (i=11;i<=20;i++){
-		    		String[] help = (temp[i]).split(",");
-		    		for(j=0;j<3;j++){
-		    			ola+=Integer.toString(s)+":"+help[j]+" ";
-		    			s++;
+		    	
+		    		
+		    		for (i=1;i<11;i++){
+		    			context.write(new Text(Integer.toString(i)),new Text(temp[i]));
 		    		}
 		    		
-		    	}
-
-		    	context.write(new Text(temp[0]),new Text(ola));
-
-		    	
-		    	
-		    	
-		    	
+		    		
 		    	
 		    
-		    }
+		    
 		}
 	}
+}
+
 
 	public static class IntSumReducer 
 	    extends Reducer<Text,Text,Text,Text> {
@@ -73,19 +61,31 @@ public class MachineLearningForm {
 		            Context context
                     ) throws IOException, InterruptedException {
 			
+			
+			
+			int s=0,click=0;
+			String[] help;
+			
 			for (Text val : values) {
+			
+				help = (val.toString()).split("\\s+");
+
+			
+				if (help[0].equals("1")){
+					click++;
+				}
+				s++;
+			
+
+			}
 				
-				context.write(val,new Text(""));	
+				
+			
+			 	context.write(key,new Text(Integer.toString(s)+" "+Integer.toString(click)));				
+					
 
 		}
-			
-
-			
-
-			//context.write(values,new Text(""));	
-		
-			}	
-		}
+	}	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
@@ -96,7 +96,7 @@ public class MachineLearningForm {
 		}
 		    
 		Job job = new Job(conf, "DayCounter");
-		job.setJarByClass(MachineLearningForm.class);
+		job.setJarByClass(ToBinaryOutput.class);
 		job.setJobName("DayCounter");
 		    
 		job.setMapperClass(TokenizerMapper.class);

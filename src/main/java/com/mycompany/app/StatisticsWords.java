@@ -19,7 +19,7 @@ import org.apache.hadoop.util.GenericOptionsParser;
 
 import java.util.regex.*;
 
-public class MachineLearningForm {
+public class StatisticsWords {
 
 	public static class TokenizerMapper 
     	extends Mapper<Object, Text, Text, Text>{
@@ -31,29 +31,29 @@ public class MachineLearningForm {
                  ) throws IOException, InterruptedException {
 			StringTokenizer itr = new StringTokenizer(value.toString(),"\n");
 			
-			//String[] help = new String[];
-			String[] temp;
- 			String ola="";
-			int i,j;
-			int s=1;
+			String[] temp,help;
+			int i;
+			int s=0;
 			while (itr.hasMoreTokens()) {
 				
-		    	temp = (itr.nextToken()).split("\\s+");
+		    	temp = (itr.nextToken()).split("\t");
 
-		    	// for (i=1;i<=10;i++){
-		    	// 	ola +=temp[i]+" ";
-		    	// }
-		    	ola+=temp[1]+" ";
-		    	for (i=11;i<=20;i++){
-		    		String[] help = (temp[i]).split(",");
-		    		for(j=0;j<3;j++){
-		    			ola+=Integer.toString(s)+":"+help[j]+" ";
-		    			s++;
-		    		}
-		    		
+		    	if (Double.parseDouble(temp[1])<5){
+		    		context.write(new Text ("5"),new Text(temp[0]));
 		    	}
-
-		    	context.write(new Text(temp[0]),new Text(ola));
+		    	else if(Double.parseDouble(temp[1])<10){
+					context.write(new Text ("10"),new Text(temp[0]));
+		    	}
+		    	else if(Double.parseDouble(temp[1])<20){
+					context.write(new Text ("20"),new Text(temp[0]));	    		
+		    	}
+		    	else if(Double.parseDouble(temp[1])<50){
+					context.write(new Text ("50"),new Text(temp[0]));	}
+		    	else {
+					context.write(new Text ("over50"),new Text(temp[0]));
+					}
+		    	
+		    	
 
 		    	
 		    	
@@ -72,20 +72,18 @@ public class MachineLearningForm {
 		public void reduce(Text key, Iterable<Text> values,
 		            Context context
                     ) throws IOException, InterruptedException {
+			int s=0;
 			
+
+
 			for (Text val : values) {
+				s++;
 				
-				context.write(val,new Text(""));	
 
 		}
-			
-
-			
-
-			//context.write(values,new Text(""));	
-		
-			}	
-		}
+		context.write(key,new Text(Integer.toString(s)));
+	}	
+}
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
@@ -96,7 +94,7 @@ public class MachineLearningForm {
 		}
 		    
 		Job job = new Job(conf, "DayCounter");
-		job.setJarByClass(MachineLearningForm.class);
+		job.setJarByClass(Stats.class);
 		job.setJobName("DayCounter");
 		    
 		job.setMapperClass(TokenizerMapper.class);

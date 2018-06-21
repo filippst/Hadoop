@@ -1,13 +1,10 @@
-
-//input from NewForm
+//input to arxiko
 
 package com.mycompany.app;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-
-import java.text.DecimalFormat;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -18,74 +15,67 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 import java.util.regex.*;
+import java.text.DecimalFormat;
 
-public class MachineLearningForm {
+
+public class Separable {
 
 	public static class TokenizerMapper 
     	extends Mapper<Object, Text, Text, Text>{
  
-		private final static IntWritable one = new IntWritable(1);
-		private Text word = new Text();
+		
    
 		public void map(Object key, Text value, Context context
                  ) throws IOException, InterruptedException {
 			StringTokenizer itr = new StringTokenizer(value.toString(),"\n");
 			
-			//String[] help = new String[];
 			String[] temp;
- 			String ola="";
-			int i,j;
-			int s=1;
 			while (itr.hasMoreTokens()) {
 				
-		    	temp = (itr.nextToken()).split("\\s+");
-
-		    	// for (i=1;i<=10;i++){
-		    	// 	ola +=temp[i]+" ";
-		    	// }
-		    	ola+=temp[1]+" ";
-		    	for (i=11;i<=20;i++){
-		    		String[] help = (temp[i]).split(",");
-		    		for(j=0;j<3;j++){
-		    			ola+=Integer.toString(s)+":"+help[j]+" ";
-		    			s++;
-		    		}
+		    	temp = (itr.nextToken()).split("\t");
+		    	
 		    		
-		    	}
-
-		    	context.write(new Text(temp[0]),new Text(ola));
-
-		    	
-		    	
-		    	
-		    	
-		    	
-		    
+		    	context.write(new Text (temp[0]), value);
+		    		
 		    }
 		}
 	}
-
 	public static class IntSumReducer 
 	    extends Reducer<Text,Text,Text,Text> {
 		private IntWritable result = new IntWritable();
 	
-		public void reduce(Text key, Iterable<Text> values,
-		            Context context
+		//public void reduce(Text key, Iterable<IntWritable> values,
+		public void reduce(Text key, Iterable<Text> values, 
+                    Context context
                     ) throws IOException, InterruptedException {
-			
-			for (Text val : values) {
+
+			//DecimalFormat df = new DecimalFormat("0.0000");
+			//temp = df.format(percentage);
+			String sum="";
+			double prob=0.0;
+			for ( Text val : values){
+			sum="";
+			String[] help = (val.toString()).split("\\s+");
+			String[] stats;
+			double no=1.0;
+			String outp="";
+			int i;
+			for (i=1;i<11;i++){
+				outp+=help[i]+"\t";
+			}
+			for ( i=11;i<help.length;i++){
+				stats = help[i].toString().split(",");
+				prob = (Double.parseDouble(stats[1]))*no;
+				sum+=String.valueOf(prob)+"\t";
+				no=no*(Double.parseDouble(stats[2]));
 				
-				context.write(val,new Text(""));	
+			}
 
-		}
+			context.write(key, new Text(outp+sum));
+			}
 			
-
-			
-
-			//context.write(values,new Text(""));	
-		
-			}	
 		}
+	}	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
@@ -96,7 +86,7 @@ public class MachineLearningForm {
 		}
 		    
 		Job job = new Job(conf, "DayCounter");
-		job.setJarByClass(MachineLearningForm.class);
+		job.setJarByClass(Cascade.class);
 		job.setJobName("DayCounter");
 		    
 		job.setMapperClass(TokenizerMapper.class);

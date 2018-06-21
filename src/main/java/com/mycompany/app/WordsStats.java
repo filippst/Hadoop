@@ -1,13 +1,10 @@
-
-//input from NewForm
+//input URLtoDomain kai to input ????
 
 package com.mycompany.app;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-
-import java.text.DecimalFormat;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -19,7 +16,7 @@ import org.apache.hadoop.util.GenericOptionsParser;
 
 import java.util.regex.*;
 
-public class MachineLearningForm {
+public class WordsStats {
 
 	public static class TokenizerMapper 
     	extends Mapper<Object, Text, Text, Text>{
@@ -31,39 +28,43 @@ public class MachineLearningForm {
                  ) throws IOException, InterruptedException {
 			StringTokenizer itr = new StringTokenizer(value.toString(),"\n");
 			
-			//String[] help = new String[];
-			String[] temp;
- 			String ola="";
-			int i,j;
-			int s=1;
+			String[] temp,help;
+			String[] help6,help7,help8,help9,help10,help11,help12,help13,help14,help15;
+			
+			int pos=0;
+			int i ;
 			while (itr.hasMoreTokens()) {
 				
-		    	temp = (itr.nextToken()).split("\\s+");
+		    	temp = (itr.nextToken()).split("\t");
+		    	
+		    	if(temp.length == 16){
 
-		    	// for (i=1;i<=10;i++){
-		    	// 	ola +=temp[i]+" ";
-		    	// }
-		    	ola+=temp[1]+" ";
-		    	for (i=11;i<=20;i++){
-		    		String[] help = (temp[i]).split(",");
-		    		for(j=0;j<3;j++){
-		    			ola+=Integer.toString(s)+":"+help[j]+" ";
-		    			s++;
-		    		}
 		    		
+		    		help6 = temp[6].split(",");
+		            help7 = temp[7].split(",");
+		    		help8 = temp[8].split(",");
+		    		help9 = temp[9].split(",");
+		    		help10 = temp[10].split(",");
+		    		help11 = temp[11].split(",");
+		    		help12 = temp[12].split(",");
+		    		help13 = temp[13].split(",");
+		    		help14 = temp[14].split(",");
+		    		help15 = temp[15].split(",");
+		    			
+		    		context.write(new Text(temp[0]+"-"+temp[3]), new Text (temp[5]+"\t"+help6[1]+"\t"+help7[1]+"\t"+help8[1]+"\t"+help9[1]+"\t"+help10[1]+"\t"+help11[1]+"\t"+help12[1]+"\t"+help13[1]+"\t"+help14[1]+"\t"+help15[1]));
+		    		
+		    	}	
+		    	else if (temp.length == 3)
+		    	{
+		    			context.write(new Text(temp[0]+"-"+temp[1]), new Text (temp[2]));
+
 		    	}
-
-		    	context.write(new Text(temp[0]),new Text(ola));
-
-		    	
-		    	
-		    	
-		    	
-		    	
 		    
-		    }
+		    
 		}
 	}
+}
+
 
 	public static class IntSumReducer 
 	    extends Reducer<Text,Text,Text,Text> {
@@ -73,19 +74,43 @@ public class MachineLearningForm {
 		            Context context
                     ) throws IOException, InterruptedException {
 			
+			String sum ="";
+			String help = "";
+			int max=-1,i,j;
+			String[] last,words;
+			String[] len;
+				
 			for (Text val : values) {
 				
-				context.write(val,new Text(""));	
+				len  = (val.toString()).split("\\s+");
 
-		}
+				if (len.length>3){
+					
+				
+					
+			 		help += val.toString()+"\t";
+			 		
+			 	}
+			 	else {
+			 		sum += val.toString()+"\t";
+			 	}
+			}
+
+				sum =help+sum;
+				last  = (sum).split("\\s+");
+				words =(last[0]).split(",");
+				for (i=12;i<last.length;i++){
+					for(j=0;j<words.length;j++){
+						context.write(new Text(last[i]),new Text(words[j]));
+				}
+				}
 			
 
-			
+						
+						
 
-			//context.write(values,new Text(""));	
-		
-			}	
 		}
+	}	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
@@ -96,7 +121,7 @@ public class MachineLearningForm {
 		}
 		    
 		Job job = new Job(conf, "DayCounter");
-		job.setJarByClass(MachineLearningForm.class);
+		job.setJarByClass(WordsStats.class);
 		job.setJobName("DayCounter");
 		    
 		job.setMapperClass(TokenizerMapper.class);
